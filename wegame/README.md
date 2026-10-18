@@ -84,7 +84,7 @@ flowchart TB
     subgraph T3["3. our session (our own)"]
         C1["Who: one logged-in player"]
         C2["Proves: we already checked this player"]
-        C3["Lives: as long as we decide; we can revoke it"]
+        C3["Lives: as long as we decide, and we can revoke it"]
     end
 ```
 

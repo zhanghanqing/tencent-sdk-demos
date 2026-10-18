@@ -46,7 +46,7 @@ flowchart LR
 |---|---|---|
 | **WeGame** (login) | "I am player X" | Verifies the player's session ticket with WeGame, and lets them in only on a clear yes |
 | **Midas** (payments) | "I paid 648 CNY" | Gives items only when Midas confirms: a deduct that returned ok, or a signed delivery notice |
-| **ACE** (moderation) | "This message is clean" | Sends chat, names and clan names to moderation before anyone else sees them |
+| **ACE** (moderation) | "This message is clean" | Checks chat, names and clan names on the server before anyone else sees them, and punishes voice violations reported by signed callbacks |
 
 ---
 
@@ -93,7 +93,7 @@ id, and none of them trusts an id the client merely claims.
 |---|---|---|---|
 | [**midas/**](midas/) | Done | How do we charge exactly once and deliver exactly once? | Order state machine, `bill_no` idempotency, "unknown is not failed", one-transaction delivery, crash recovery |
 | [**wegame/**](wegame/) | Done (design only: types, interfaces, tables) | How do we know who the player really is? | Session ticket check with `auth_ticket`, one shared `access_token` with a single refresher, a decision for every result code, our own revocable session |
-| **ace/** | Planned | How do we keep bad text out without breaking chat? | Check before showing, what to do when moderation is down (fail open vs fail closed) |
+| [**ace/**](ace/) | Done (design only: types, interfaces, policy tables) | How do we keep bad content out without breaking chat? | A server-side gate for every chat line and name, one policy per scene (names fail closed, chat fails open and is rechecked), signed and de-duplicated voice callbacks, one penalty ladder for text and voice |
 
 ---
 
@@ -128,7 +128,7 @@ tencent-sdk-demos/
   README.md      this overview
   midas/         payments: done
   wegame/        login: done (design only)
-  ace/           moderation: planned
+  ace/           moderation: done (design only)
 ```
 
 Each demo has its own README with diagrams, assumptions, and limitations.
