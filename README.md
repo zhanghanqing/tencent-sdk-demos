@@ -44,7 +44,7 @@ flowchart LR
 
 | SDK | What a cheating client could claim | What the server does instead |
 |---|---|---|
-| **WeGame** (login) | "I am player X" | Verifies the access token with WeGame and uses the identity WeGame returns |
+| **WeGame** (login) | "I am player X" | Verifies the player's session ticket with WeGame, and lets them in only on a clear yes |
 | **Midas** (payments) | "I paid 648 CNY" | Gives items only when Midas confirms: a deduct that returned ok, or a signed delivery notice |
 | **ACE** (moderation) | "This message is clean" | Sends chat, names and clan names to moderation before anyone else sees them |
 
@@ -61,10 +61,10 @@ sequenceDiagram
     participant M as Midas
 
     Note over C,M: 1. Log in (WeGame demo)
-    C->>S: login with access token
-    S->>W: is this token valid?
-    W-->>S: yes, openid = X
-    S-->>C: our own session for X
+    C->>S: login with rail_id + session ticket
+    S->>W: auth_ticket: is this ticket valid?
+    W-->>S: result 0
+    S-->>C: our own session for this player
 
     Note over C,M: 2. Chat (ACE demo)
     C->>S: send "hello" to the clan
@@ -79,9 +79,11 @@ sequenceDiagram
     S-->>C: item delivered
 ```
 
-Identity comes first: the `openid` that Midas charges and ACE logs is the
-one WeGame verified. That is why the order of the demos is WeGame, then
-Midas, then ACE, even though Midas was written first.
+Identity comes first: every later step acts on the player the server
+verified at login, never on an id the client typed in. The ids differ by
+platform: WeGame (PC) identifies players by `rail_id`; Midas on mobile uses
+the `openid` from QQ or WeChat login. Each demo keeps to its own platform's
+id, and none of them trusts an id the client merely claims.
 
 ---
 
@@ -90,7 +92,7 @@ Midas, then ACE, even though Midas was written first.
 | Demo | Status | Core question | Key ideas |
 |---|---|---|---|
 | [**midas/**](midas/) | Done | How do we charge exactly once and deliver exactly once? | Order state machine, `bill_no` idempotency, "unknown is not failed", one-transaction delivery, crash recovery |
-| **wegame/** | Planned | How do we know who the player really is? | Server-side token check, secrets on the server, our own session, expiry |
+| [**wegame/**](wegame/) | Done (design only: types, interfaces, tables) | How do we know who the player really is? | Session ticket check with `auth_ticket`, one shared `access_token` with a single refresher, a decision for every result code, our own revocable session |
 | **ace/** | Planned | How do we keep bad text out without breaking chat? | Check before showing, what to do when moderation is down (fail open vs fail closed) |
 
 ---
@@ -125,7 +127,7 @@ chat line may not.
 tencent-sdk-demos/
   README.md      this overview
   midas/         payments: done
-  wegame/        login: planned
+  wegame/        login: done (design only)
   ace/           moderation: planned
 ```
 
