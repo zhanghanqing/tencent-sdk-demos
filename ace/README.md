@@ -392,8 +392,12 @@ Every violation keeps its evidence: the logged text with the service's
 reviews from `review_queue`; a won appeal sets `voided` on the violation
 and lifts the penalty, and both stay in the history.
 
-This is the same idea as the **conduct records** that *Squad*'s China
-edition added: a per-player history that drives escalating consequences.
+A preview build of *Squad*'s China edition was reported to warn players
+about team kills in tiers and to let victims report deliberate team kills
+([游戏日报 via Sohu, 2026-05-28](https://www.sohu.com/a/1028663636_118576)).
+A per-player history that drives escalating consequences, as above, is the
+backend such features need. How the real game implements them is not
+public.
 
 ---
 
